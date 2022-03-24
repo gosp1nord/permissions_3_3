@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from .models import Advertisement
 from .serializers import AdvertisementSerializer
@@ -13,9 +14,10 @@ class AdvertisementViewSet(ModelViewSet):
 
     queryset = Advertisement.objects.all()
     serializer_class = AdvertisementSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, IsAuthenticated]
     filterset_class = AdvertisementFilter
     filter_backends = [DjangoFilterBackend]
+
 
     def get_queryset(self):
         user = self.request.user.id

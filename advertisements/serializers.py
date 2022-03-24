@@ -1,12 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
 from .models import Advertisement
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer для пользователя."""
-
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name',)
@@ -14,10 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AdvertisementSerializer(serializers.ModelSerializer):
     """Serializer для объявления."""
-
-    creator = UserSerializer(
-        read_only=True,
-    )
+    creator = UserSerializer(read_only=True,)
 
     class Meta:
         model = Advertisement
@@ -32,14 +27,19 @@ class AdvertisementSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""
 
-        if self.context["request"].method == 'PATCH':
-            count = 0
-        else:
-            count = 1
-        for item in self.context["view"].queryset.values():
-            if self.context["request"].user.id == item["creator_id"] and item['status'] == 'OPEN':
-                count += 1
-                if count == 11:
-                    raise serializers.ValidationError('Нельзя держать открытыми более 10 объявлений.')
+        if self.context["request"].method == 'POST':
+            if len(self.context["view"].queryset.filter(creator_id=self.context["request"].user.id, status='OPEN')) > 9:
+                raise serializers.ValidationError('Нельзя держать открытыми более 10 объявлений.')
+        elif self.context["request"].method == 'PATCH' and self.context["request"].data.get("status", False):
+            creator_id = self.context["view"].queryset.filter(id=self.instance.id).values()[0]["creator_id"]
+            if creator_id == self.context["request"].user.id:
+                # если ты пытаешься изменить СВОЕ объявление
+                if len(self.context["view"].queryset.filter(creator_id=self.context["request"].user.id, status='OPEN')) > 9 and self.context["request"].data.get("status") != "CLOSED":
+                    raise serializers.ValidationError('Нельзя сделать открытыми более 10 объявлений.')
+            else:
+                # если пытаешься изменить ЧУЖОЕ объявление
+                if len(self.context["view"].queryset.filter(creator_id=creator_id, status='OPEN')) > 9 and self.context["request"].data.get("status") != "CLOSED":
+                    raise serializers.ValidationError('Нельзя сделать у другого пользователя открытыми более 10 объявлений.')
         return data
+
 
