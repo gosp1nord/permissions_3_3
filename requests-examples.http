@@ -4,7 +4,7 @@
 # получение объявлений
 GET http://localhost:8000/api/advertisements/
 Content-Type: application/json
-Authorization: Token 0430952f55d464343c8e9422ff43b8ee60269013
+#Authorization: Token 0430952f55d464343c8e9422ff43b8ee60269013
 #Authorization: Token d8c433fb8c2b0270185aafa58ef3d5946a54cc36
 
 ###
@@ -38,7 +38,7 @@ Authorization: Token d8c433fb8c2b0270185aafa58ef3d5946a54cc36
 GET http://localhost:8000/api/advertisements/?creator=1
 Content-Type: application/json
 #Authorization: Token d8c433fb8c2b0270185aafa58ef3d5946a54cc36
-Authorization: Token 0430952f55d464343c8e9422ff43b8ee60269013
+#Authorization: Token 0430952f55d464343c8e9422ff43b8ee60269013
 
 ###
 
